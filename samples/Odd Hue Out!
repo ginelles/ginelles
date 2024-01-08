@@ -1,0 +1,158 @@
+// circa 2019
+
+var score = 0;
+var count = 0;
+var gameModeDecider = 0;
+var randButtonID = "button" + randomNumber(1, 4);
+var R = randomNumber(0, 205);
+var G = randomNumber(0, 205);
+var B = randomNumber(0, 205);
+var color = rgb(R, G, B);
+var diffColor = rgb(R + 65, G + 30, B + 45);
+var randButtonID = "a" + randomNumber(1, 4);
+
+onEvent("how2Play", "click", function( ) {
+  setScreen("howToScreen");
+});
+
+onEvent("goBack1", "click", function( ){
+  setScreen("startScreen");
+});
+
+onEvent("playGame", "click", function( ){
+  setScreen("modeScreen");
+});
+
+onEvent("easyButton", "click", function(){
+  setScreen("gameScreen");
+  gameModeDecider = 1;
+  setColorsEasy();
+});
+
+onEvent("mediumButton", "click", function (){
+  setScreen("gameScreen");
+  gameModeDecider = 2;
+  setColorsMed();
+});
+
+onEvent("hardButton", "click", function (){
+  setScreen("gameScreen");
+  gameModeDecider = 3;
+  setColorsHard();
+});
+
+onEvent("goBack2", "click", function() {
+  setScreen("startScreen");
+});
+
+onEvent("restartButton", "click", function() {
+  score = 0;
+  count = 0;
+  setText("scoreLabel", "Score: 0");
+  setText("answerOutcome", " ");
+  setScreen("startScreen");
+});
+
+onEvent("tryAgain", "click", function() {
+  score = 0;
+  count = 0;
+  setText("scoreLabel", "Score: 0");
+  setText("answerOutcome", " ");
+  setScreen("modeScreen");
+});
+
+function setColorsEasy() {
+  R = randomNumber(0, 205);
+  G = randomNumber(0, 205);
+  B = randomNumber(0, 205);
+  color = rgb(R, G, B);
+  diffColor = rgb(R + 65, G + 30, B + 45);
+  setProperty("a1", "background-color", color);
+  setProperty("a2", "background-color", color);
+  setProperty("a3", "background-color", color);
+  setProperty("a4", "background-color", color);
+  setProperty(randButtonID, "background-color", diffColor);
+}
+
+function setColorsMed() {
+  R = randomNumber(0, 215);
+  G = randomNumber(0, 215);
+  B = randomNumber(0, 215);
+  color = rgb(R, G, B);
+  diffColor = rgb(R + 30, G + 30, B + 30);
+  setProperty("a1", "background-color", color);
+  setProperty("a2", "background-color", color);
+  setProperty("a3", "background-color", color);
+  setProperty("a4", "background-color", color);
+  setProperty(randButtonID, "background-color", diffColor);
+}
+
+function setColorsHard() {
+  R = randomNumber(0, 245);
+  G = randomNumber(0, 245);
+  B = randomNumber(0, 245);
+  color = rgb(R, G, B);
+  diffColor = rgb (R + 8, G + 8, B + 4);
+  setProperty("a1", "background-color", color);
+  setProperty("a2", "background-color", color);
+  setProperty("a3", "background-color", color);
+  setProperty("a4", "background-color", color);
+  setProperty(randButtonID, "background-color", diffColor);
+}
+
+function checkCorrect(buttonID) {
+  if (buttonID == randButtonID) {
+    scoreUp();
+    setText("answerOutcome", "Yes!");
+  } else {
+    setText("answerOutcome", "Wrong one!");
+  }
+  randButtonID = "a" + randomNumber(1, 4);
+  updateScore();
+  count++;
+  if (gameModeDecider == 1) {
+    setColorsEasy();
+  } else if (gameModeDecider == 2) {
+    setColorsMed();
+  } else if (gameModeDecider == 3) {
+    setColorsHard();
+  }
+}
+
+onEvent("a1", "click", function( ) {
+  checkCorrect("a1");
+  checkOverall();
+});
+
+onEvent("a2", "click", function( ) {
+  checkCorrect("a2");
+  checkOverall();
+});
+
+onEvent("a3", "click", function( ) {
+  checkCorrect("a3");
+  checkOverall();
+});
+
+onEvent("a4", "click", function( ) {
+  checkCorrect("a4");
+  checkOverall();
+});
+
+function scoreUp() {
+  score++;
+}
+
+function updateScore() {
+  setText("scoreLabel", "Score: " + score);
+}
+
+function checkOverall() {
+  if (count == 10 && score >= 6) {
+    setText("goodResults", "In fact, with " + score + " out of 10 correct, you're proving yourself to be decently skilled at telling colors apart!");
+    setScreen("goodEnd");
+  } else if (count == 10 && score < 6) {
+    setText("badResults", ("You got " + score + " right out of 10."));
+    setScreen("badEnd");
+  }
+}
