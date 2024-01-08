@@ -1,0 +1,157 @@
+// New York State Identification and Intelligence System
+
+#include <cctype>
+#include <fstream>
+#include <string>
+#include "console.h"
+#include "strlib.h"
+#include "filelib.h"
+#include "simpio.h"
+#include "vector.h"
+#include "SimpleTest.h" // IWYU pragma: keep (needed to quiet spurious warning)
+using namespace std;
+
+
+/* this code just makes sure there are only
+ * letters in what is input.
+ */
+string toLetters(string s) {
+    string result;
+    for (int i = 0; i < s.length(); i++) {
+        if (isalpha(s[i])) {
+            result += s[i];
+        }
+    }
+    return result;
+}
+
+
+/* step one of the procedure involves the
+ * beginning (first 1-3 letters) of the last names.
+ * */
+void stepOne(string &s) {
+    if (s.length() == 1) {
+        if (s[0] == 'K') {
+            s[0] = 'C';
+        }
+    } else if (s.length() == 2) {
+        // a little redundant tbh
+        if (s[0] == 'K' && s[1] != 'N') {
+            s[0] = 'C';
+        } else if (s[0] == 'K' && s[1] == 'N') {
+            s[0] = 'N';
+        } else if (s[0] == 'P' && s[1] == 'H') {
+            s[0] = 'F';
+            s[1] = 'F';
+        } else if (s[0] == 'P' && s[1] == 'F') {
+            s[0] = 'F';
+            s[1] = 'F';
+        }
+    } else if (s.length() >= 3) {
+        /* also redundant but, like with grids,
+         * i need to specify that i don't go out of
+         * bounds while checking. */
+        if (s[0] == 'K' && s[1] != 'N') {
+            s[0] = 'C';
+        } else if (s[0] == 'K' && s[1] == 'N') {
+            s[0] = 'N';
+        } else if (s[0] == 'P' && s[1] == 'H') {
+            s[0] = 'F';
+            s[1] = 'F';
+        } else if (s[0] == 'P' && s[1] == 'F') {
+            s[0] = 'F';
+            s[1] = 'F';
+        } else if (s[0] == 'M' && s[1] == 'A' && s[2] == 'C') {
+            s[1] = 'C';
+        } else if (s[0] == 'S' && s[1] == 'C' && s[2] == 'H') {
+            s[0] = 'S';
+            s[1] = 'S';
+            s[2] = 'S';
+        }
+    }
+}
+
+
+/* step two looks at the last two
+ * letters of the string, changing
+ * them if they fall under any of
+ * if-statements. this one is less repetitive
+ * than stepOne since we know how many
+ * letters to look at.
+ * */
+void stepTwo(string &s) {
+    if (s.length() >= 2) {
+        if (s[-1] == 'E' && s[-2] == 'E') {
+            s.replace(-2, 2, "Y␢");
+        } else if (s[-1] == 'E' && s[-2] == 'I') {
+            s.replace(-2, 2, "Y␢");
+        } else if ((s[-1] == 'T' && s[-2] == 'D') || (s[-1] == 'T' && s[-2] == 'R') ||
+                   (s[-1] == 'T' && s[-2] == 'N') || (s[-1] == 'D' && s[-2] == 'R') ||
+                   (s[-1] == 'D' && s[-2] == 'N')) {
+            s.replace(-2, 2, "D␢");
+        }
+    }
+}
+
+
+/* the code for the entire NYSIIS procedure
+ * is not complete. currently, only if-statements
+ * were necessary but the rules that follow make use
+ * of a for-loop starting at int i = 1
+ * */
+
+
+
+/* this returns an surname that has
+ * been coded using the NYSII system,
+ * or the New York State Identification
+ * and Intelligence System.
+ * */
+string nysiis(string s) {
+    s = toUpperCase(toLetters(s));
+    string original = s;
+    stepOne(s);
+    stepTwo(s);
+    return s;
+}
+
+Vector<string> checkFile(Vector<string> allNames, string codedSurname) {
+    Vector<string> result;
+    for (int i = 0; i < allNames.size(); i++) {
+        string codedName = nysiis(allNames[i]);
+        if (codedName == codedSurname) {
+            result.add(allNames[i]);
+        }
+    }
+    return result;
+}
+
+void nysiisSearch(string filepath) {
+    // This provided code opens the specified file
+    // and reads the lines into a vector of strings
+    ifstream in;
+    Vector<string> allNames;
+
+    if (openFile(in, filepath)) {
+        readEntireFile(in, allNames);
+    }
+    cout << "Read file " << filepath << ", "
+         << allNames.size() << " names found." << endl;
+
+    // The names read from file are now stored in Vector allNames
+    while (true) {
+        //prompt user to type in a surname.
+        string line = getLine("Enter a surname (RETURN to quit): ");
+        if (line == "") {
+            break;
+        } else {
+            //compute soundex code for user-given surname.
+            string codedSurname = nysiis(line);
+            cout << "NYSIIS code is " << codedSurname << endl;
+            // iterate over allNames and compute their codes and compare
+            Vector<string> result = checkFile(allNames, codedSurname);
+            // to user's given surname. if match, add to a result vector
+            cout << "Matches from database: " << result << endl;
+        }
+    }
+}
