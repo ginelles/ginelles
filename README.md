@@ -1,4 +1,4 @@
-🌻 hello! i'm @ginelles (she/her), a sophomore at Stanford University interested in
+🌻 hello! i'm @ginelles (she/her), an undergrad at Stanford University interested in
 leveraging the quantification of human patterns with our technology, particularly
 human-computer interaction and human-centered artificial intelligence!
 
